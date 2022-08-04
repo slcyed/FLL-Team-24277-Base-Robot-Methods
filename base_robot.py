@@ -25,7 +25,7 @@ class BaseRobot():
     """
     def __init__(self):
         self.hub = PrimeHub()
-        self._version = "1.2 8/4/2022"
+        self._version = "1.3 8/4/2022"
         self._leftDriveMotorPort = 'E'
         self._rightDriveMotorPort = 'A'
         self._leftAttachmentMotorPort = 'B'
@@ -33,14 +33,14 @@ class BaseRobot():
         self._colorSensorPort = 'F'
         self.driveMotors = MotorPair(self._leftDriveMotorPort, self._rightDriveMotorPort)
         self.debugMode = False
-        self._tireDiameter = 5.6 #cm
-        self._tireCircum = self._tireDiameter * math.pi #cm
+        self._tireDiameter = 5.6 #CM
+        self._tireCircum = self._tireDiameter * math.pi #CM
 
     
 
     def GyroTurn(self, angle):
         """
-        Turns the robot the specified number of `desiredDegrees`. 
+        Turns the robot to the specified `angle`. 
         Positive numbers turn to the right, negative numbers turn the robot \
             to the left. Note that when the robot makes the turn, it will \
             always overshoot by about seven degrees. In other words if you \
@@ -51,7 +51,7 @@ class BaseRobot():
             with more instructions.
         Parameter
         -------------
-        angle: How many degrees should the robot turn. \
+        angle: Where the robot should stop turning at. \
             Positive values turn the robot to the right, negative values turn \
             to the left.
         type: float
@@ -60,14 +60,18 @@ class BaseRobot():
         default: No default value
         """
         gyroTurnSpeed = 5
+        #Resets gyro angle
         MotionSensor().reset_yaw_angle()
-        
+        #Tests if the angle is positive.
         if(angle > 0):
             while(MotionSensor().get_yaw_angle() < angle):
+                #If it it is positive it starts turning right.
                 self.driveMotors.start_tank(gyroTurnSpeed, -gyroTurnSpeed)
         else:
             while(MotionSensor().get_yaw_angle() > angle):
+                #If it it is not positive it starts turning left.
                 self.driveMotors.start_tank(-gyroTurnSpeed, gyroTurnSpeed)
+        #Stops when it is it has reached the desired angle
         self.driveMotors.stop()
     
     
@@ -90,9 +94,11 @@ class BaseRobot():
         maxSpeed = 50
         minSpeed = 10
         proportionFactor = 1
-        
+        #Calculates the amount of rotations in the distance and multiplies it by 360 to make it degrees
         totalDegreesNeeded = distance / self._tireCircum * 360
+        #Resets gyro angle
         MotionSensor().reset_yaw_angle()
+        #Sets counted motor port and sets the degrees counted to 0
         testmotor = Motor(self._leftDriveMotorPort)
         testmotor.set_degrees_counted(0)
         
@@ -168,10 +174,13 @@ class BaseRobot():
         >>> br = base_robot.BaseRobot()
         >>> br.TurnRightAndDriveOnHeading(90, 40) #drive heading 90 for 40 cm
         """
+        #Tests for direction
         if heading < self.hub.motion_sensor.get_yaw_angle & self.debugMode==True():
             sys.exit("TurnRightAndDriveOnHeading Error: Invalid Heading, try using TurnLeftAndDriveOnHeading Method")
         
+        #Turns Right
         self.GyroTurn(heading - self.hub.motion_sensor.get_yaw_angle())
+        #Drives on selected Heading
         self.GyroDriveOnHeading(distance, heading)
 
     def TurnLeftAndDriveOnHeading(self, distance, heading):
@@ -201,7 +210,7 @@ class BaseRobot():
         >>> br = base_robot.BaseRobot()
         >>> br.TurnLeftAndDriveOnHeading(90, 40) #drive heading 90 for 40 cm
         """
-        #Debug
+        #Tests for direction
         if heading > self.hub.motion_sensor.get_yaw_angle & self.debugMode==True():
             sys.exit("TurnLeftAndDriveOnHeading Error: Invalid Heading, try using TurnRightAndDriveOnHeading Method")
         
