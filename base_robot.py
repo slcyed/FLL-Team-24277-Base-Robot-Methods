@@ -25,7 +25,7 @@ class BaseRobot():
     """
     def __init__(self):
         self.hub = PrimeHub()
-        self._version = "1.3 8/4/2022"
+        self._version = "1.4 8/4/2022 (10:20 AM)"
         self._leftDriveMotorPort = 'E'
         self._rightDriveMotorPort = 'A'
         self._leftAttachmentMotorPort = 'B'
