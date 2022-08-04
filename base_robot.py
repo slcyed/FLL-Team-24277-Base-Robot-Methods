@@ -25,7 +25,7 @@ class BaseRobot():
     """
     def __init__(self):
         self.hub = PrimeHub()
-        self._version = "1.1 7/27/2022"
+        self._version = "1.2 8/4/2022"
         self._leftDriveMotorPort = 'E'
         self._rightDriveMotorPort = 'A'
         self._leftAttachmentMotorPort = 'B'
@@ -116,7 +116,7 @@ class BaseRobot():
             
         #Stop
         self.driveMotors.stop()
-        
+    
     def AccelGyroDriveForward(self, distance):
         """
         Drives the robot very straight for `desiredDistance`, using \
@@ -143,21 +143,21 @@ class BaseRobot():
 
     def TurnRightAndDriveOnHeading(self, distance, heading):
         """
-        Turns the robot to the right until the `desiredHeading` \
-        is reached. Then drives on the `desiredHeading` until \
-        the `desiredDistance` has been reached.
+        Turns the robot to the right until the `heading` \
+        is reached. Then drives on the `heading` until \
+        the `distance` has been reached.
         Minimum distance that this will work for is about 16cm. \
         If you need to go a very short distance, use ``GyroTurn`` and \
         move_tank.
         Parameters
         ----------
-        desiredHeading: On what heading should the robot drive
+        heading: On what heading should the robot drive
         type: float
         values: any. However, it must be a heading larger than the current \
             heading (that is, to the right). If a heading is entered that is \
             less than the current heading, the program will exit. default: no \
             default value
-        desiredDistance: How far the robot should go in cm
+        distance: How far the robot should go in cm
         type: float
         values: any value above 16.0. You can enter smaller numbers, but the \
             robot will still go 16cm
@@ -176,21 +176,21 @@ class BaseRobot():
 
     def TurnLeftAndDriveOnHeading(self, distance, heading):
         """
-        Turns the robot to the left until the `desiredHeading` \
-        is reached. Then drives on the `desiredHeading` until \
-        the `desiredDistance` has been reached.
+        Turns the robot to the left until the `heading` \
+        is reached. Then drives on the `heading` until \
+        the `distance` has been reached.
         Minimum distance that this will work for is about 16cm. \
         If you need to go a very short distance, use ``GyroTurn`` and \
         move_tank.
         Parameters
         ----------
-        desiredHeading: On what heading should the robot drive
+        heading: On what heading should the robot drive
         type: float
         values: any. However, it must be a heading larger than the current \
             heading (that is, to the left). If a heading is entered that is \
             less than the current heading, the program will exit. default: no \
             default value
-        desiredDistance: How far the robot should go in cm
+        distance: How far the robot should go in cm
         type: float
         values: any value above 16.0. You can enter smaller numbers, but the \
             robot will still go 16cm
@@ -209,3 +209,6 @@ class BaseRobot():
         self.GyroTurn(self.hub.motion_sensor.get_yaw_angle() - heading)
         #Drives on selected Heading
         self.GyroDriveOnHeading(distance, heading)
+    
+    def GetVersion(self):
+        return self._version
