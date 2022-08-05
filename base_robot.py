@@ -25,7 +25,7 @@ class BaseRobot():
     """
     def __init__(self):
         self.hub = PrimeHub()
-        self._version = "1.4 8/4/2022 (10:20 AM)"
+        self._version = "1.5 8/5/2022"
         self._leftDriveMotorPort = 'E'
         self._rightDriveMotorPort = 'A'
         self._leftAttachmentMotorPort = 'B'
@@ -59,6 +59,10 @@ class BaseRobot():
             robot doesn't turn more than necessary.
         default: No default value
         """
+        #Tests for angle and debug mode
+        if self.debugMode == true & angle > 180 or angle < -180:
+            sys.exit("GyroTurn() Error: Angle must be between -180 and 180")
+        #Sets turn speed
         gyroTurnSpeed = 5
         #Resets gyro angle
         MotionSensor().reset_yaw_angle()
@@ -77,20 +81,36 @@ class BaseRobot():
     
     def GyroDriveOnHeading(self, distance, heading):
         """
-        Moves the robot the specified distance.
-
-        Parameters:
-        -----------
-        
-        Heading
-
-
-        Distance
-
+        Drives the robot very straight on a `desiredHeading` for a \
+        `desiredDistance`, using acceleration and the gyro. \
+        Accelerates smoothly to prevent wheel slipping. \
+        Gyro provides feedback and helps keep the robot pointing \
+        on the desired heading.
+        Minimum distance that this will work for is about 16cm.
+        If you need to go a very short distance, use move_tank.
+        Parameters
+        ----------
+        desiredHeading: On what heading should the robot drive (float)
+        type: float
+        values: any. Best if the `desiredHeading` is close to the current \
+            heading. Unpredictable robot movement may occur for large heading \
+            differences.
+        default: no default value
+        desiredDistance: How far the robot should go in cm (float)
+        type: float
+        values: any value above 16.0. You can enter smaller numbers, but the \
+            robot will still go 16cm
+        default: no default value
+        See Also
+        --------
+        Also look at ``AccelGyroDriveFwd()``.
+        Example
+        -------
         >>> import base_robot
         >>> br = base_robot.BaseRobot()
-        >>> br.GyroDriveOnHeading(20, 45)
+        >>> br.GyroDriveOnHeading(90, 40) #drive on heading 90 for 40 cm
         """
+        #Sets max speed
         maxSpeed = 50
         minSpeed = 10
         proportionFactor = 1
@@ -145,6 +165,7 @@ class BaseRobot():
         >>> br = base_robot.BaseRobot()
         >>> br.AccelGyroDriveForward(20)
         """
+        #Runs GyroDriveOnHeading with the current gyro yaw angle and the desired distance
         self.GyroDriveOnHeading(distance, self.hub.motion_sensor.get_yaw_angle())
 
     def TurnRightAndDriveOnHeading(self, distance, heading):
@@ -174,7 +195,7 @@ class BaseRobot():
         >>> br = base_robot.BaseRobot()
         >>> br.TurnRightAndDriveOnHeading(90, 40) #drive heading 90 for 40 cm
         """
-        #Tests for direction
+        #Tests for direction and debug mode
         if heading < self.hub.motion_sensor.get_yaw_angle & self.debugMode==True():
             sys.exit("TurnRightAndDriveOnHeading Error: Invalid Heading, try using TurnLeftAndDriveOnHeading Method")
         
@@ -210,7 +231,7 @@ class BaseRobot():
         >>> br = base_robot.BaseRobot()
         >>> br.TurnLeftAndDriveOnHeading(90, 40) #drive heading 90 for 40 cm
         """
-        #Tests for direction
+        #Tests for direction and debug mode
         if heading > self.hub.motion_sensor.get_yaw_angle & self.debugMode==True():
             sys.exit("TurnLeftAndDriveOnHeading Error: Invalid Heading, try using TurnRightAndDriveOnHeading Method")
         
