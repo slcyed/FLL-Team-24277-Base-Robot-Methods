@@ -60,12 +60,10 @@ class BaseRobot():
         default: No default value
         """
         #Tests for angle and debug mode
-        if self.debugMode == true & angle > 180 or angle < -180:
+        if self.debugMode and (angle > 179 or angle < -180):
             sys.exit("GyroTurn() Error: Angle must be between -180 and 180")
         #Sets turn speed
-        gyroTurnSpeed = 5
-        #Resets gyro angle
-        MotionSensor().reset_yaw_angle()
+        gyroTurnSpeed = 10
         #Tests if the angle is positive.
         if(angle > 0):
             while(MotionSensor().get_yaw_angle() < angle):
@@ -81,22 +79,22 @@ class BaseRobot():
     
     def GyroDriveOnHeading(self, distance, heading):
         """
-        Drives the robot very straight on a `desiredHeading` for a \
-        `desiredDistance`, using acceleration and the gyro. \
+        Drives the robot very straight on a `Heading` for a \
+        `Distance`, using acceleration and the gyro. \
         Accelerates smoothly to prevent wheel slipping. \
         Gyro provides feedback and helps keep the robot pointing \
-        on the desired heading.
+        on the  heading.
         Minimum distance that this will work for is about 16cm.
         If you need to go a very short distance, use move_tank.
         Parameters
         ----------
-        desiredHeading: On what heading should the robot drive (float)
+        Heading: On what heading should the robot drive (float)
         type: float
-        values: any. Best if the `desiredHeading` is close to the current \
+        values: any. Best if the `Heading` is close to the current \
             heading. Unpredictable robot movement may occur for large heading \
             differences.
         default: no default value
-        desiredDistance: How far the robot should go in cm (float)
+        Distance: How far the robot should go in cm (float)
         type: float
         values: any value above 16.0. You can enter smaller numbers, but the \
             robot will still go 16cm
@@ -111,7 +109,7 @@ class BaseRobot():
         >>> br.GyroDriveOnHeading(90, 40) #drive on heading 90 for 40 cm
         """
         #Sets max speed
-        maxSpeed = 50
+        maxSpeed = 75
         minSpeed = 10
         proportionFactor = 1
         #Calculates the amount of rotations in the distance and multiplies it by 360 to make it degrees
@@ -119,24 +117,28 @@ class BaseRobot():
         #Resets gyro angle
         MotionSensor().reset_yaw_angle()
         #Sets counted motor port and sets the degrees counted to 0
-        testmotor = Motor(self._leftDriveMotorPort)
+        testmotor = Motor(self._rightDriveMotorPort)
         testmotor.set_degrees_counted(0)
-        
+        print(str(totalDegreesNeeded))
+
         #Accel to full speed
         for currentSpeed in range(0, maxSpeed, 5):
-            correction = self.hub.motion_sensor.get_yaw_angle() - heading
+            correction =  heading - self.hub.motion_sensor.get_yaw_angle()
             self.driveMotors.start(steering = correction * proportionFactor, speed = currentSpeed)
             wait_for_seconds(0.1)
         
         #Cruise at full speed
         slowDownPoint = totalDegreesNeeded - 360
+        print(str(slowDownPoint))
         while(testmotor.get_degrees_counted() < slowDownPoint):
-            correction = self.hub.motion_sensor.get_yaw_angle() - heading
+            #Print the degrees counted
+            print(str(testmotor.get_degrees_counted()))
+            correction = heading - self.hub.motion_sensor.get_yaw_angle()
             self.driveMotors.start(steering = correction * proportionFactor, speed = maxSpeed)
         
         #Slow down
         for currentSpeed in range(maxSpeed, minSpeed, -5):
-            correction = self.hub.motion_sensor.get_yaw_angle() - heading
+            correction = heading - self.hub.motion_sensor.get_yaw_angle()
             self.driveMotors.start(steering = correction * proportionFactor, speed = currentSpeed)
             wait_for_seconds(0.1)
             
@@ -145,7 +147,7 @@ class BaseRobot():
     
     def AccelGyroDriveForward(self, distance):
         """
-        Drives the robot very straight for `desiredDistance`, using \
+        Drives the robot very straight for `distance`, using \
             acceleration and gyro.
         
         Accelerates to prevent wheel slipping. Gyro keeps the robot \
@@ -154,7 +156,7 @@ class BaseRobot():
         If you need to go a very short distance, use ``move_tank``.
         Parameters
         ----------
-        desiredDistance: How far the robot should go in cm
+        Distance: How far the robot should go in cm
         type: float
         values: Any value above 16.0. You can enter smaller numbers, but the \
             robot will still go 16cm
@@ -196,13 +198,13 @@ class BaseRobot():
         >>> br.TurnRightAndDriveOnHeading(90, 40) #drive heading 90 for 40 cm
         """
         #Tests for direction and debug mode
-        if heading < self.hub.motion_sensor.get_yaw_angle & self.debugMode==True():
+        if heading < self.hub.motion_sensor.get_yaw_angle() and self.debugMode:
             sys.exit("TurnRightAndDriveOnHeading Error: Invalid Heading, try using TurnLeftAndDriveOnHeading Method")
         
         #Turns Right
         self.GyroTurn(heading - self.hub.motion_sensor.get_yaw_angle())
         #Drives on selected Heading
-        self.GyroDriveOnHeading(distance, heading)
+        self.GyroDriveOnHeading(distance, 0)
 
     def TurnLeftAndDriveOnHeading(self, distance, heading):
         """
@@ -232,13 +234,13 @@ class BaseRobot():
         >>> br.TurnLeftAndDriveOnHeading(90, 40) #drive heading 90 for 40 cm
         """
         #Tests for direction and debug mode
-        if heading > self.hub.motion_sensor.get_yaw_angle & self.debugMode==True():
+        if heading > self.hub.motion_sensor.get_yaw_angle() and self.debugMode:
             sys.exit("TurnLeftAndDriveOnHeading Error: Invalid Heading, try using TurnRightAndDriveOnHeading Method")
         
         #Turns Left
         self.GyroTurn(self.hub.motion_sensor.get_yaw_angle() - heading)
         #Drives on selected Heading
-        self.GyroDriveOnHeading(distance, heading)
+        self.GyroDriveOnHeading(distance, 0)
     
-    def GetVersion(self):
+    def GetVersion(self, number):
         return self._version
